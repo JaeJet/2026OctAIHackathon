@@ -3,3 +3,5 @@
 __pycache__/
 *.pyc
 runs/
+raw_log*.txt
+try_investigator.py

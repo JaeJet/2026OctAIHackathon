@@ -27,7 +27,9 @@ Rules:
    piece of text copied exactly from after the colon on that one line.
    Do not use "...", and do not change or join lines.
 3. Only cite known issue ids listed in KNOWN ISSUES. If none are listed,
-   cite only log lines.
+   cite only log lines. Every listed known issue was matched in this log:
+   add {"type": "known_issue", "id": ...} to the evidence of the claim it
+   supports, next to the log line.
 4. "Suspected Mods" is a hint, not evidence. Never use it as proof.
 5. If the evidence does not point to a specific cause, set status to
    "unclear", keep confidence "low", and use "fix" to say what the admin

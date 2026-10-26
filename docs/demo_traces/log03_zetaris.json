@@ -1,0 +1,97 @@
+{
+  "name": "log03",
+  "retrieved_ids": [
+    "KI013"
+  ],
+  "retrieved": [
+    {
+      "id": "KI013",
+      "name": "Exception ticking world",
+      "cause": "Something crashed while the server was updating the world; the mod named in the stack trace is usually the culprit.",
+      "fix": "Find the first mod package in the stack trace and update or remove that mod; restore a backup if the world data is broken.",
+      "source_url": "https://shockbyte.com/help/knowledgebase/articles/how-to-fix-ticking-entity-errors",
+      "matched_line": 4
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "feedback_sent": null,
+      "raw": "{\n  \"summary\": \"NullPointerException in rctmod caused by PlayerState.get returning null while trying to invoke setCurrentSeries, crashing the world tick.\",\n  \"confidence\": \"high\",\n  \"status\": \"diagnosed\",\n  \"claims\": [\n    {\n      \"text\": \"PlayerState.get(net.minecraft.class_1657) returned null, causing NPE when invoking setCurrentSeries(String)\",\n      \"evidence\": [\n        {\n          \"type\": \"log_line\",\n          \"line\": 5,\n          \"quote\": \"java.lang.NullPointerException: Cannot invoke \\\"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.setCurrentSeries(String)\\\" because the return value of \\\"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.get(net.minecraft.class_1657)\\\" is null\"\n        }\n      ]\n    }\n  ],\n  \"fix\": \"Update rctmod to the latest compatible version for the server's Minecraft version, or remove the mod if the crash persists. Ensure server and mod versions are aligned. Report the bug to the mod author if updating does not resolve the issue.\"\n}",
+      "result": {
+        "summary": "NullPointerException in rctmod caused by PlayerState.get returning null while trying to invoke setCurrentSeries, crashing the world tick.",
+        "confidence": "high",
+        "status": "diagnosed",
+        "claims": [
+          {
+            "text": "PlayerState.get(net.minecraft.class_1657) returned null, causing NPE when invoking setCurrentSeries(String)",
+            "evidence": [
+              {
+                "type": "log_line",
+                "line": 5,
+                "quote": "java.lang.NullPointerException: Cannot invoke \"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.setCurrentSeries(String)\" because the return value of \"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.get(net.minecraft.class_1657)\" is null"
+              }
+            ]
+          }
+        ],
+        "fix": "Update rctmod to the latest compatible version for the server's Minecraft version, or remove the mod if the crash persists. Ensure server and mod versions are aligned. Report the bug to the mod author if updating does not resolve the issue."
+      },
+      "verdict": {
+        "kept": [
+          {
+            "text": "PlayerState.get(net.minecraft.class_1657) returned null, causing NPE when invoking setCurrentSeries(String)",
+            "evidence": [
+              {
+                "type": "log_line",
+                "line": 5,
+                "quote": "java.lang.NullPointerException: Cannot invoke \"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.setCurrentSeries(String)\" because the return value of \"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.get(net.minecraft.class_1657)\" is null"
+              }
+            ]
+          }
+        ],
+        "rejected": [],
+        "feedback": "",
+        "passed": true
+      }
+    }
+  ],
+  "zetaris": {
+    "sql": "SELECT id, name, signature, cause, fix, source_url FROM mccrash.known_issues_table",
+    "rows_fetched": 25
+  },
+  "carryover": {
+    "remaining_checks": [],
+    "hypotheses_alive": [
+      "PlayerState.get(net.minecraft.class_1657) returned null, causing NPE when invoking setCurrentSeries(String)"
+    ],
+    "hypotheses_killed": [],
+    "critic_rejections": [],
+    "evidence": [
+      {
+        "type": "log_line",
+        "line": 5,
+        "quote": "java.lang.NullPointerException: Cannot invoke \"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.setCurrentSeries(String)\" because the return value of \"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.get(net.minecraft.class_1657)\" is null"
+      }
+    ],
+    "suspected_mods": []
+  },
+  "final": {
+    "summary": "NullPointerException in rctmod caused by PlayerState.get returning null while trying to invoke setCurrentSeries, crashing the world tick.",
+    "confidence": "high",
+    "status": "diagnosed",
+    "claims": [
+      {
+        "text": "PlayerState.get(net.minecraft.class_1657) returned null, causing NPE when invoking setCurrentSeries(String)",
+        "evidence": [
+          {
+            "type": "log_line",
+            "line": 5,
+            "quote": "java.lang.NullPointerException: Cannot invoke \"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.setCurrentSeries(String)\" because the return value of \"com.gitlab.srcmc.rctmod.api.data.sync.PlayerState.get(net.minecraft.class_1657)\" is null"
+          }
+        ]
+      }
+    ],
+    "fix": "Update rctmod to the latest compatible version for the server's Minecraft version, or remove the mod if the crash persists. Ensure server and mod versions are aligned. Report the bug to the mod author if updating does not resolve the issue.",
+    "dropped_claims": []
+  }
+}
