@@ -37,9 +37,9 @@ client = OpenAI(
         "meterless-app": APP_NAME,
         "meterless-scope": "user",
     },
-    timeout=60,
+    timeout=240,
+    max_retries=1,           # library default is 2
 )
-
 
 # ── Section C: our own error type ─────────────────
 class LLMError(Exception):
@@ -59,6 +59,12 @@ def ask(messages, model=None) -> str:
     try:
         resp = client.chat.completions.create(model=chosen, messages=messages)
     # Order matters: AuthenticationError is a subclass of APIStatusError.
+    except openai.APITimeoutError as e:
+        raise LLMError(
+            "Nightshift accepted the request but didn't answer within 60s. "
+            "It's running, but the model lane may be slow or stuck. "
+            "Check the Nightshift Console, then retry."
+        ) from e
     except openai.APIConnectionError as e:
         raise LLMError(
             f"Can't reach Nightshift at {BASE_URL}. "
