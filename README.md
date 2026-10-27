@@ -106,19 +106,24 @@ python tools/demo_critic.py
 python check_llm.py
 ```
 
-**Investigate one log:**
+**Investigate one crash log** (what a server admin would do):
 
 ```powershell
 python -m agent.loop data/sample_logs/log03.txt
 ```
 
-One model call takes about 1–3 minutes. The trace path is printed at the end.
+Runs the full agent once on a single log: parser, Zetaris known issues, Nemotron via Nightshift, the critic, and a retry with Markovian carryover if any claim is rejected. It prints the final diagnosis as JSON and saves the full trace to `runs/<timestamp>_<name>.json` (the path is printed at the end). It doesn't know the right answer; it just reports what the agent concluded. You can point it at any crash log file, not only the samples. One model call takes about 1–3 minutes.
 
-**Run the eval:**
+**Score the agent against the answer key** (how we got the Results table):
 
 ```powershell
 python eval.py              # all sample logs
 python eval.py log02 log05  # just some
+```
+
+Runs the same agent on each sample log, then compares each answer with the expected one in `data/answer_key.csv` (diagnosed or unclear) and writes a pass/fail table to `docs/eval_results.md`. It also saves a trace for every log in `runs/`. Expect about 1–3 minutes per log, and note that it **overwrites** `docs/eval_results.md`. The model's answers can vary slightly between runs, so the committed file is the run our Results section reports.
+
+In short: `agent.loop` *uses* the agent on one log; `eval.py` *tests* it against known answers.
 ```
 
 **Zetaris table:** run `docs/zetaris_setup.sql` once in the Zetaris SQL Editor. Zetaris reads `data/known_issues.json` straight from this GitHub repo as a REST table (25 rows).
