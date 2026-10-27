@@ -1,0 +1,163 @@
+{
+  "name": "log05",
+  "retrieved_ids": [
+    "KI008"
+  ],
+  "retrieved": [
+    {
+      "id": "KI008",
+      "name": "Watchdog: one server tick took too long",
+      "cause": "One server tick ran for 60 seconds or more (or start-up ran past the limit), so the watchdog shut the server down on purpose. Common causes: heavy world generation or /locate, huge saves, lag machines, too many entities, a slow host.",
+      "fix": "Check what the \"Server thread\" was doing in the report and fix that; set max-tick-time=-1 in server.properties only while testing.",
+      "source_url": "https://help.akliz.net/docs/common-minecraft-errors",
+      "matched_line": 7
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "feedback_sent": null,
+      "prompt_tokens": 1858,
+      "raw": "{\"summary\":\"ServerHangWatchdog triggered a shutdown after a single server tick took 60 seconds, caused by structure generation in BrassAmberBattleTowers.\",\"confidence\":\"high\",\"status\":\"diagnosed\",\"claims\":[{\"text\":\"ServerHangWatchdog detected a tick exceeding 60 seconds, causing a hard shutdown.\",\"evidence\":[{\"type\":\"log_line\",\"line\":7,\"quote\":\"java.lang.Error: ServerHangWatchdog detected that a single server tick took 60.00 seconds (should be max 0.05)\"},{\"type\":\"known_issue\",\"id\":\"KI008\"}]},{\"text\":\"The prolonged tick was caused by world generation in BrassAmberBattleTowers LandBattleTower.isSpawnableChunk.\",\"evidence\":[{\"type\":\"log_line\",\"line\":17,\"quote\":\"at com.BrassAmber.ba_bt.worldGen.structures.LandBattleTower.isSpawnableChunk(LandBattleTower.java:128) ~[BrassAmberBattleTowers-1.18.2-2.3.12.jar%2391!/:1.18.2-2.3.12] {re:classloading,pl:rei_plugin_compatibilities:B}\"}]}],\"fix\":\"Update or remove the BrassAmberBattleTowers mod, or disable its structure generation. If testing, set max-tick-time=-1 in server.properties. Report the bug to the mod author.\"}",
+      "result": {
+        "summary": "ServerHangWatchdog triggered a shutdown after a single server tick took 60 seconds, caused by structure generation in BrassAmberBattleTowers.",
+        "confidence": "high",
+        "status": "diagnosed",
+        "claims": [
+          {
+            "text": "ServerHangWatchdog detected a tick exceeding 60 seconds, causing a hard shutdown.",
+            "evidence": [
+              {
+                "type": "log_line",
+                "line": 7,
+                "quote": "java.lang.Error: ServerHangWatchdog detected that a single server tick took 60.00 seconds (should be max 0.05)"
+              },
+              {
+                "type": "known_issue",
+                "id": "KI008"
+              }
+            ]
+          },
+          {
+            "text": "The prolonged tick was caused by world generation in BrassAmberBattleTowers LandBattleTower.isSpawnableChunk.",
+            "evidence": [
+              {
+                "type": "log_line",
+                "line": 17,
+                "quote": "at com.BrassAmber.ba_bt.worldGen.structures.LandBattleTower.isSpawnableChunk(LandBattleTower.java:128) ~[BrassAmberBattleTowers-1.18.2-2.3.12.jar%2391!/:1.18.2-2.3.12] {re:classloading,pl:rei_plugin_compatibilities:B}"
+              }
+            ]
+          }
+        ],
+        "fix": "Update or remove the BrassAmberBattleTowers mod, or disable its structure generation. If testing, set max-tick-time=-1 in server.properties. Report the bug to the mod author."
+      },
+      "verdict": {
+        "kept": [
+          {
+            "text": "ServerHangWatchdog detected a tick exceeding 60 seconds, causing a hard shutdown.",
+            "evidence": [
+              {
+                "type": "log_line",
+                "line": 7,
+                "quote": "java.lang.Error: ServerHangWatchdog detected that a single server tick took 60.00 seconds (should be max 0.05)"
+              },
+              {
+                "type": "known_issue",
+                "id": "KI008"
+              }
+            ]
+          },
+          {
+            "text": "The prolonged tick was caused by world generation in BrassAmberBattleTowers LandBattleTower.isSpawnableChunk.",
+            "evidence": [
+              {
+                "type": "log_line",
+                "line": 17,
+                "quote": "at com.BrassAmber.ba_bt.worldGen.structures.LandBattleTower.isSpawnableChunk(LandBattleTower.java:128) ~[BrassAmberBattleTowers-1.18.2-2.3.12.jar%2391!/:1.18.2-2.3.12] {re:classloading,pl:rei_plugin_compatibilities:B}"
+              }
+            ]
+          }
+        ],
+        "rejected": [],
+        "feedback": "",
+        "passed": true
+      }
+    }
+  ],
+  "zetaris": {
+    "sql": "SELECT id, name, signature, cause, fix, source_url FROM mccrash.known_issues_table",
+    "rows_fetched": 25
+  },
+  "markovian": {
+    "chunk_config": {
+      "max_chunks": 4,
+      "carryover_tokens": 800
+    },
+    "chunks": 1,
+    "total_tokens_used": 2127,
+    "naive_chat_tokens": 2127,
+    "total_tokens_saved": 0,
+    "efficiency_percent": 0.0,
+    "status": "completed"
+  },
+  "carryover": {
+    "remaining_checks": [],
+    "hypotheses_alive": [
+      "ServerHangWatchdog detected a tick exceeding 60 seconds, causing a hard shutdown.",
+      "The prolonged tick was caused by world generation in BrassAmberBattleTowers LandBattleTower.isSpawnableChunk."
+    ],
+    "hypotheses_killed": [],
+    "critic_rejections": [],
+    "evidence": [
+      {
+        "type": "log_line",
+        "line": 7,
+        "quote": "java.lang.Error: ServerHangWatchdog detected that a single server tick took 60.00 seconds (should be max 0.05)"
+      },
+      {
+        "type": "known_issue",
+        "id": "KI008"
+      },
+      {
+        "type": "log_line",
+        "line": 17,
+        "quote": "at com.BrassAmber.ba_bt.worldGen.structures.LandBattleTower.isSpawnableChunk(LandBattleTower.java:128) ~[BrassAmberBattleTowers-1.18.2-2.3.12.jar%2391!/:1.18.2-2.3.12] {re:classloading,pl:rei_plugin_compatibilities:B}"
+      }
+    ],
+    "suspected_mods": []
+  },
+  "carryover_block": "COMPLETED: claim kept: ServerHangWatchdog detected a tick exceeding 60 seconds, causing a hard shutdown.; claim kept: The prolonged tick was caused by world generation in BrassAmberBattleTowers LandBattleTower.isSpawnableChunk.; evidence verified by critic: line 7, KI008, line 17\nREMAINING: none\nDECISIONS: none\nCONTEXT: suspected mods (hint only, not evidence): none",
+  "final": {
+    "summary": "ServerHangWatchdog triggered a shutdown after a single server tick took 60 seconds, caused by structure generation in BrassAmberBattleTowers.",
+    "confidence": "high",
+    "status": "diagnosed",
+    "claims": [
+      {
+        "text": "ServerHangWatchdog detected a tick exceeding 60 seconds, causing a hard shutdown.",
+        "evidence": [
+          {
+            "type": "log_line",
+            "line": 7,
+            "quote": "java.lang.Error: ServerHangWatchdog detected that a single server tick took 60.00 seconds (should be max 0.05)"
+          },
+          {
+            "type": "known_issue",
+            "id": "KI008"
+          }
+        ]
+      },
+      {
+        "text": "The prolonged tick was caused by world generation in BrassAmberBattleTowers LandBattleTower.isSpawnableChunk.",
+        "evidence": [
+          {
+            "type": "log_line",
+            "line": 17,
+            "quote": "at com.BrassAmber.ba_bt.worldGen.structures.LandBattleTower.isSpawnableChunk(LandBattleTower.java:128) ~[BrassAmberBattleTowers-1.18.2-2.3.12.jar%2391!/:1.18.2-2.3.12] {re:classloading,pl:rei_plugin_compatibilities:B}"
+          }
+        ]
+      }
+    ],
+    "fix": "Update or remove the BrassAmberBattleTowers mod, or disable its structure generation. If testing, set max-tick-time=-1 in server.properties. Report the bug to the mod author.",
+    "dropped_claims": []
+  }
+}
