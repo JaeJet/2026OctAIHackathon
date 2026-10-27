@@ -10,10 +10,12 @@ import sys
 from datetime import datetime
 
 from agent.critic import check
-from agent.investigator import InvestigatorError, investigate
+from agent.investigator import InvestigatorError, build_messages, investigate
 from agent.knowledge import ISSUES_SQL, fetch_issues, match_issues
 from agent.llm import LLMError
-from agent.parser import find_exceptions, number_lines
+from agent.markovian import (carryover_block, estimate_tokens,
+                             remaining_checks, run_stats)
+from agent.parser import find_exceptions, number_lines, root_cause
 
 RUNS_DIR = "runs"
 
@@ -107,6 +109,11 @@ def investigate_log(log_text, known_issues=None, max_retries=3, name="run",
     carryover = new_carryover()
     feedback = None
     last_result, last_verdict = None, None
+    root = root_cause(found)
+    root_line = root[0] if root else None
+    # Per-step token accounting for the Markovian run record.
+    prompt_toks, reply_toks, feedback_toks = [], [], []
+    status = "max-chunks"
     trace = {"name": name, "retrieved_ids": retrieved_ids,
              "retrieved": known_issues, "attempts": []}
     if all_issues is not None:
@@ -117,19 +124,27 @@ def investigate_log(log_text, known_issues=None, max_retries=3, name="run",
             step = {"attempt": attempt, "feedback_sent": feedback}
             trace["attempts"].append(step)
 
+            # First attempt sends no carryover; later ones do.
+            sent = carryover if attempt > 1 else None
+            if sent:
+                step["carryover_sent"] = carryover_block(sent)
+            messages = build_messages(numbered, found, known_issues, sent, feedback)
+            step["prompt_tokens"] = estimate_tokens(
+                "".join(m["content"] for m in messages))
+            prompt_toks.append(step["prompt_tokens"])
+            feedback_toks.append(estimate_tokens(feedback or ""))
+
             try:
-                # First attempt sends no carryover; later ones do.
-                result, raw = investigate(
-                    numbered, found, known_issues,
-                    carryover if attempt > 1 else None, feedback,
-                )
+                result, raw = investigate(numbered, found, known_issues, sent, feedback)
             except InvestigatorError as e:
                 step["error"] = str(e)
                 step["raw"] = getattr(e, "raw", None)
+                reply_toks.append(estimate_tokens(step["raw"] or ""))
                 feedback = (f"Your last reply was rejected: {e}. "
                             "Reply with one valid JSON object in the required format.")
                 continue
 
+            reply_toks.append(estimate_tokens(raw))
             verdict = check(result, numbered, retrieved_ids)
             step["raw"] = raw
             step["result"] = result
@@ -138,19 +153,28 @@ def investigate_log(log_text, known_issues=None, max_retries=3, name="run",
             # Update every attempt, so a clean first pass still records the
             # evidence that won (the visible Markovian state for the demo).
             update_carryover(carryover, verdict)
+            carryover["remaining_checks"] = remaining_checks(
+                verdict, root_line, retrieved_ids)
 
             if verdict["passed"]:
+                status = "completed"
                 break
 
             feedback = verdict["feedback"]
 
     except LLMError as e:
         trace["error"] = str(e)
+        reply_toks.extend([0] * (len(prompt_toks) - len(reply_toks)))
+        trace["markovian"] = run_stats(prompt_toks, reply_toks, feedback_toks,
+                                       max_retries + 1, "errored")
         save_trace(trace, name)
         raise
 
     final = finalise(last_result, last_verdict)
+    trace["markovian"] = run_stats(prompt_toks, reply_toks, feedback_toks,
+                                   max_retries + 1, status)
     trace["carryover"] = carryover
+    trace["carryover_block"] = carryover_block(carryover)
     trace["final"] = final
     return final, save_trace(trace, name)
 

@@ -7,6 +7,7 @@ Whether the claims are actually supported is the critic's job.
 import json
 
 from agent.llm import ask
+from agent.markovian import carryover_block
 from agent.parser import excerpt, root_cause
 
 
@@ -89,7 +90,7 @@ def build_messages(numbered, found, known_issues=None, carryover=None, feedback=
     else:
         known_text = "(none)"
 
-    carryover_text = json.dumps(carryover, ensure_ascii=False) if carryover else "(none)"
+    carryover_text = carryover_block(carryover) if carryover else "(none)"
     feedback_text = feedback if feedback else "(none)"
 
     user_text = (
