@@ -91,3 +91,18 @@ def test_trace_saved(monkeypatch, tmp_path):
     assert len(trace["attempts"]) == 2
     assert trace["final"]["status"] == "diagnosed"
     assert trace["carryover"]["hypotheses_killed"] == ["rctmod NPE"]
+
+def test_no_mod_frame_gives_unclear(monkeypatch, tmp_path):
+    # log02 has no mod in its stack, so even a "diagnosed" reply becomes unclear.
+    quote = "ServerHangWatchdog detected"
+    reply = {"summary": "s", "confidence": "high", "status": "diagnosed",
+             "claims": [{"text": "watchdog fired",
+                         "evidence": [{"type": "log_line", "line": 5, "quote": quote}]}],
+             "fix": "f"}
+    calls = []
+    monkeypatch.setattr(loop, "investigate", fake_investigator([reply], calls))
+    monkeypatch.setattr(loop, "RUNS_DIR", str(tmp_path))
+    final, path = loop.investigate_log(load("log02"), name="log02")
+    assert final["status"] == "unclear"
+    assert final["confidence"] == "low"
+    assert len(final["claims"]) == 1

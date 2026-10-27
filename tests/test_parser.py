@@ -1,4 +1,4 @@
-from agent.parser import number_lines, find_exceptions, root_cause, excerpt
+from agent.parser import number_lines, find_exceptions, root_cause, excerpt, first_mod_frame
 
 LOG_DIR = "data/sample_logs"
 
@@ -66,3 +66,24 @@ def test_excerpt_near_start_does_not_break():
 def test_excerpt_keeps_line_numbers():
     numbered = number_lines("\n".join(f"line{i}" for i in range(1, 21)))
     assert excerpt(numbered, 10, radius=1) == "9: line9\n10: line10\n11: line11"
+
+def first_frame_line(name):
+    numbered = number_lines(open(f"data/sample_logs/{name}.txt", encoding="utf-8").read())
+    frame = first_mod_frame(numbered, find_exceptions(numbered))
+    return None if frame is None else frame[0]
+
+
+def test_first_mod_frame_log05_battletowers():
+    assert first_frame_line("log05") == 17
+
+
+def test_first_mod_frame_log03_rctmod():
+    assert first_frame_line("log03") == 6
+
+
+def test_first_mod_frame_log01_skips_minecraft_frame():
+    assert first_frame_line("log01") == 16
+
+
+def test_first_mod_frame_log02_none():
+    assert first_frame_line("log02") is None

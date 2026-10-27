@@ -47,6 +47,50 @@ def root_cause(found):
     return found["exception"]
 
 
+# Frames from Minecraft, the loaders and Java itself: never the culprit mod.
+NON_MOD_PREFIXES = (
+    "net.minecraft.", "net.minecraftforge.", "net.fabricmc.", "cpw.mods.",
+    "com.mojang.", "java.", "jdk.", "sun.", "it.unimi.", "com.google.",
+)
+# A Java package name, e.g. "com.BrassAmber.ba_bt..." (not "minecraft@1.18.2").
+PACKAGE_RE = re.compile(r"^[A-Za-z_]\w*\.[\w.$]+")
+
+
+def frame_class(stripped):
+    """'at knot//com.x.Y.m(Y.java:1) ~[..]' -> 'com.x.Y.m'.
+
+    Drops loader prefixes like knot//, TRANSFORMER/mod@ver/, java.base@17/
+    by taking the first '/'-separated part that looks like a package name.
+    """
+    text = stripped[3:].split("(")[0]
+    for part in text.split("/"):
+        if PACKAGE_RE.match(part):
+            return part
+    return text
+
+
+def first_mod_frame(numbered, found):
+    """First stack frame from a mod in the FIRST stack trace, as (n, line), or None.
+
+    Starts at the top exception and stops at the first line that is not part
+    of the trace ("at ...", "Caused by:", "... 6 more").
+    """
+    if found["exception"] is None:
+        return None
+    start = found["exception"][0]
+    for n, line in numbered:
+        if n <= start:
+            continue
+        stripped = line.strip()
+        if stripped.startswith("Caused by:") or stripped.startswith("..."):
+            continue
+        if not stripped.startswith("at "):
+            break  # end of the first stack trace
+        if not frame_class(stripped).startswith(NON_MOD_PREFIXES):
+            return (n, stripped)
+    return None
+
+
 def excerpt(numbered, line_no, radius=5):
     """Return lines line_no-radius .. line_no+radius as text, e.g. '23: Caused by: ...'.
 

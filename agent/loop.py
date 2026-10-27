@@ -15,7 +15,7 @@ from agent.knowledge import ISSUES_SQL, fetch_issues, match_issues
 from agent.llm import LLMError
 from agent.markovian import (carryover_block, estimate_tokens,
                              remaining_checks, run_stats)
-from agent.parser import find_exceptions, number_lines, root_cause
+from agent.parser import find_exceptions, first_mod_frame, number_lines, root_cause
 
 RUNS_DIR = "runs"
 
@@ -171,6 +171,13 @@ def investigate_log(log_text, known_issues=None, max_retries=3, name="run",
         raise
 
     final = finalise(last_result, last_verdict)
+    # No mod frame in the stack (e.g. log02): the log can't show which mod is
+    # to blame, so never report a confident diagnosis. Claims stay as evidence.
+    if first_mod_frame(numbered, found) is None and final["status"] == "diagnosed":
+        final["status"] = "unclear"
+        final["confidence"] = "low"
+        final["note"] = ("No mod appears in the stack trace, so the log does "
+                         "not show which mod is responsible.")
     trace["markovian"] = run_stats(prompt_toks, reply_toks, feedback_toks,
                                    max_retries + 1, status)
     trace["carryover"] = carryover

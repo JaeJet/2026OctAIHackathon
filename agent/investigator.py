@@ -8,7 +8,7 @@ import json
 
 from agent.llm import ask
 from agent.markovian import carryover_block
-from agent.parser import excerpt, root_cause
+from agent.parser import excerpt, first_mod_frame, root_cause
 
 
 class InvestigatorError(Exception):
@@ -37,7 +37,9 @@ Rules:
    should check next. An honest "unclear" is better than a guess.
 6. If CRITIC FEEDBACK is given, fix exactly those problems.
 7. Name the mod responsible in plain words (e.g. "rctmod") when a log line
-   shows it, and cite that line.
+   shows it, and cite that line. FIRST MOD FRAME is the first stack line
+   from a mod: cite it when you name that mod. If it says "(none...)", no
+   mod is shown to be responsible: set status to "unclear".
 8. "fix" must be something a server admin can do: update, remove or
    reconfigure a mod, change server settings, or report the bug to the mod
    author. Never suggest editing a mod's source code.
@@ -74,6 +76,16 @@ def build_messages(numbered, found, known_issues=None, carryover=None, feedback=
         root_text = str(root[0])
         excerpt_text = excerpt(numbered, root[0])
 
+    # First mod frame in the stack trace (e.g. log05 line 17, far below the
+    # watchdog line). Add its lines to the excerpt if they aren't there yet.
+    mod_frame = first_mod_frame(numbered, found)
+    if mod_frame is None:
+        mod_frame_text = "(none: no mod appears in the stack trace)"
+    else:
+        mod_frame_text = f"{mod_frame[0]}: {mod_frame[1]}"
+        if root is None or abs(mod_frame[0] - root[0]) > 5:
+            excerpt_text += "\n...\n" + excerpt(numbered, mod_frame[0])
+
     # Top exception plus every Caused by, as "n: line".
     exception_lines = []
     if found["exception"] is not None:
@@ -96,6 +108,7 @@ def build_messages(numbered, found, known_issues=None, carryover=None, feedback=
     user_text = (
         f"ROOT CAUSE LINE: {root_text}\n"
         f"EXCEPTION LINES:\n{exception_text}\n"
+        f"FIRST MOD FRAME:\n{mod_frame_text}\n"
         f"EXCERPT:\n{excerpt_text}\n"
         f"KNOWN ISSUES:\n{known_text}\n"
         f"CARRYOVER:\n{carryover_text}\n"
