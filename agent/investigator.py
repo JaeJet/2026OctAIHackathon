@@ -182,4 +182,8 @@ def investigate(numbered, found, known_issues=None, carryover=None, feedback=Non
     """
     messages = build_messages(numbered, found, known_issues, carryover, feedback)
     reply = ask(messages)
-    return parse_reply(reply), reply
+    try:
+        return parse_reply(reply), reply
+    except InvestigatorError as e:
+        e.raw = reply  # so the loop can save what the model actually sent
+        raise

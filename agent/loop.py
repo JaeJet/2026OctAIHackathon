@@ -125,6 +125,7 @@ def investigate_log(log_text, known_issues=None, max_retries=3, name="run",
                 )
             except InvestigatorError as e:
                 step["error"] = str(e)
+                step["raw"] = getattr(e, "raw", None)
                 feedback = (f"Your last reply was rejected: {e}. "
                             "Reply with one valid JSON object in the required format.")
                 continue
